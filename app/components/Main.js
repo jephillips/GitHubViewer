@@ -2,6 +2,9 @@
  * Created by josh on 2/21/16.
  */
 var React = require('react-native');
+var GitHubService = require('../services/GitHubService');
+var Dashboard = require('./Dashboard');
+
 var {
     View,
     Text,
@@ -71,11 +74,34 @@ class Main extends React.Component {
     }
     handleSubmit(){
       this.setState({
-        isLoading: true
+        isLoading: true,
       })
+      GitHubService.getBio(this.state.username)
+          .then((res) => {
+            if(res.message === "Not Found"){
+              this.setState({
+                error: 'User Not Found',
+                isLoading: false
+              })
+            } else {
+              this.props.navigator.push({
+                title: res.name || "Select an Option",
+                component: Dashboard,
+                passProps: {userInfo: res}
+              });
+              this.setState({
+                isLoading: false,
+                error: false,
+                userName: ''
+              })
+            }
+          })
       console.log('SUBMIT', this.state.username);
     }
     render(){
+      var showErr = (
+        this.state.error ? <Text> {this.state.error} </Text> : <View></View>
+      )
       return(
         <View style={styles.mainContainer}>
         <Text style={styles.title}> Search for a Github User </Text>
@@ -89,6 +115,11 @@ class Main extends React.Component {
             underlayColor="white">
             <Text style={styles.buttonText}> SEARCH </Text>
           </TouchableHighlight>
+          <ActivityIndicatorIOS
+            animating={this.state.isLoading}
+            color="#111"
+            size="large" />
+          {showErr}
         </View>
         )
     }
