@@ -1,5 +1,7 @@
 var React = require('react-native');
 var Profile = require('./Profile');
+var Repositories = require ('./Repositories');
+var GitHubService = require('../services/GitHubService');
 
 var {
   Text,
@@ -51,7 +53,14 @@ class Dashboard extends React.Component{
     });
   }
   goToRepos(){
-    console.log("Got to Repos");
+    GitHubService.getRepos(this.props.userInfo.login)
+      .then((res) =>{
+        this.props.navigator.push({
+          title: "Repos",
+          component: Repositories,
+          passProps: {userInfo: this.props.userInfo, repos: res}
+        })
+      })
   }
   goToNotes(){
     console.log("Got to notes")
