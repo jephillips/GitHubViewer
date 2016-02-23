@@ -1,7 +1,9 @@
 var React = require('react-native');
 var Profile = require('./Profile');
 var Repositories = require ('./Repositories');
+var Notes = require('./Notes');
 var GitHubService = require('../services/GitHubService');
+var DBService = require('../services/DBService')
 
 var {
   Text,
@@ -63,7 +65,17 @@ class Dashboard extends React.Component{
       })
   }
   goToNotes(){
-    console.log("Got to notes")
+    DBService.getNotes(this.props.userInfo.login)
+      .then((res) => {
+        res = res || {};
+        this.props.navigator.push({
+          title: "User Notes",
+          component: Notes,
+          passProps: {userInfo: this.props.userInfo, notes: res}
+        })
+      }).catch((error) =>{
+        console.log("Error retrieving notes: " + error);
+      })
   }
   render(){
     return(
